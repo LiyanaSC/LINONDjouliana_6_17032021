@@ -21,6 +21,9 @@ exports.getAllSauces = (req, res, next) => {
 };
 
 exports.getOneSauce = (req, res, next) => {
+    if (!{...req.body }) {
+        return res.status(400).send(new Error('Bad request!'));
+    }
     Sauce.findById(req.params.id)
         .then(sauce => {
             res.status(200).json(sauce);
@@ -66,7 +69,7 @@ exports.deleteSauce = (req, res, next) => {
 
 exports.likedSauce = (req, res, next) => {
     console.log(req.params, req.body)
-    Sauce.updateOne({ _id: req.params.id, ...req.body }, { _id: req.params.id })
+    Sauce.updateOne({ _id: req.params.id, ...req.body }, { _id: req.params.id, ...req.body })
         .then(() => res.status(200).json({ message: 'Avis modifié !' }))
         .catch(error => res.status(400).json({ error }));
 }

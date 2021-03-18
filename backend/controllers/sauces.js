@@ -6,7 +6,6 @@ exports.getAllSauces = (req, res, next) => {
     Sauce.find().then(
         sauces => {
             const mappedSauces = sauces.map((sauce) => {
-
                 return sauce;
             });
             res.status(200).json(mappedSauces);
@@ -24,7 +23,6 @@ exports.getAllSauces = (req, res, next) => {
 exports.getOneSauce = (req, res, next) => {
     Sauce.findById(req.params.id)
         .then(sauce => {
-
             res.status(200).json(sauce);
         })
         .catch(error => res.status(404).json({ error }));
@@ -68,7 +66,7 @@ exports.deleteSauce = (req, res, next) => {
 
 exports.likedSauce = (req, res, next) => {
 
-    Sauce.findOne()
-        .then(sauces => res.status(200).json(sauces))
+    Sauce.updateOne({ _id: req.params.id }, {...req.body, _id: req.params.id })
+        .then(() => res.status(200).json({ message: 'Avis modifié !' }))
         .catch(error => res.status(400).json({ error }));
 }

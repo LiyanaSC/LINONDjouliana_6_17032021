@@ -65,8 +65,8 @@ exports.deleteSauce = (req, res, next) => {
 };
 
 exports.likedSauce = (req, res, next) => {
-
-    Sauce.updateOne({ _id: req.params.id }, {...req.body, _id: req.params.id })
+    console.log(req.params, req.body)
+    Sauce.updateOne({ _id: req.params.id, ...req.body }, { _id: req.params.id })
         .then(() => res.status(200).json({ message: 'Avis modifié !' }))
         .catch(error => res.status(400).json({ error }));
 }

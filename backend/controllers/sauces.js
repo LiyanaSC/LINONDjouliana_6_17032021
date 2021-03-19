@@ -76,7 +76,7 @@ exports.likedSauce = (req, res, next) => {
             const addLike = req.body.like;
 
             const like = sauce.likes + addLike;
-            const dislike = sauce.dislikes + addLike;
+            const dislike = sauce.dislikes - addLike;
 
             const userId = req.body.userId;
             const arrayOfLikes = sauce.usersLiked;
@@ -103,6 +103,8 @@ exports.likedSauce = (req, res, next) => {
                 Sauce.updateOne({ _id: req.params.id }, {
                         likes: like,
                         usersLiked: arrayOfLikes,
+                        dislike: dislike,
+                        usersDisliked: arrayOfDislikes,
                         _id: req.params.id
                     })
                     .then(() => res.status(200).json({ message: 'Avis modifié !' }))

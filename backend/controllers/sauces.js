@@ -80,10 +80,10 @@ exports.likedSauce = (req, res, next) => {
 
             const userId = req.body.userId;
             const arrayOfLikes = sauce.usersLiked;
-            const arrayOfDislikes = sauce.usersdisliked
+            const arrayOfDislikes = sauce.usersDisliked
             const userIndexInLikes = arrayOfLikes.indexOf(userId)
 
-            Function
+
 
             if (addLike === 1) {
                 arrayOfLikes.push(userId)
@@ -99,6 +99,7 @@ exports.likedSauce = (req, res, next) => {
 
             } else if (addLike === 0) {
                 arrayOfLikes.splice(userIndexInLikes, 1)
+                arrayOfDislikes.splice(userIndexInLikes, 1)
                 Sauce.updateOne({ _id: req.params.id }, {
                         likes: like,
                         usersLiked: arrayOfLikes,
@@ -107,7 +108,7 @@ exports.likedSauce = (req, res, next) => {
                     .then(() => res.status(200).json({ message: 'Avis modifié !' }))
                     .catch(error => res.status(400).json({ error }));
             } else {
-                arrayOfLikes.push(userId)
+                arrayOfDislikes.push(userId)
                 Sauce.updateOne({ _id: req.params.id }, {
                         dislikes: dislike,
                         usersDisliked: arrayOfDislikes,
@@ -118,7 +119,7 @@ exports.likedSauce = (req, res, next) => {
 
             }
 
-            console.log("à la fin", arrayOfLikes)
+            console.log("dislike", arrayOfDislikes)
 
         })
         .catch(error => res.status(400).json({ error }))

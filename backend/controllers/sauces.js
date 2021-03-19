@@ -79,14 +79,27 @@ exports.likedSauce = (req, res, next) => {
             const like = sauce.likes + addLike;
             const dislike = sauce.dislikes + addDislike;
 
-            const usersvote = req.body.userId;
+            const userId = req.body.userId;
             const arrayOfLikes = sauce.usersLiked;
-            const deleteLikes = arrayOfLikes.indexOf(usersvote)
+            const arrayOfDislikes = sauce.usersdisliked
+            const userIndexInLikes = arrayOfLikes.indexOf(userId)
 
-            console.log("ici", arrayOfLikes, deleteLikes)
+            Function
+
             if (addLike === 1) {
-                arrayOfLikes.push(usersvote)
+                arrayOfLikes.push(userId)
                 console.log("parlà", arrayOfLikes)
+                Sauce.updateOne({ _id: req.params.id }, {
+                        likes: like,
+                        usersLiked: arrayOfLikes,
+                        _id: req.params.id
+                    })
+                    .then(() => res.status(200).json({ message: 'Like àjouté !' }))
+                    .catch(error => res.status(400).json({ error }));
+
+
+            } else if (addLike === 0) {
+                arrayOfLikes.splice(userIndexInLikes, 1)
                 Sauce.updateOne({ _id: req.params.id }, {
                         likes: like,
                         usersLiked: arrayOfLikes,
@@ -94,11 +107,10 @@ exports.likedSauce = (req, res, next) => {
                     })
                     .then(() => res.status(200).json({ message: 'Avis modifié !' }))
                     .catch(error => res.status(400).json({ error }));
-
-
             } else {
 
             }
+
             console.log("à la fin", arrayOfLikes)
 
         })

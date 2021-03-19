@@ -74,10 +74,9 @@ exports.likedSauce = (req, res, next) => {
         .then(sauce => {
 
             const addLike = req.body.like;
-            const addDislike = req.body.dislike;
 
             const like = sauce.likes + addLike;
-            const dislike = sauce.dislikes + addDislike;
+            const dislike = sauce.dislikes + addLike;
 
             const userId = req.body.userId;
             const arrayOfLikes = sauce.usersLiked;
@@ -108,6 +107,14 @@ exports.likedSauce = (req, res, next) => {
                     .then(() => res.status(200).json({ message: 'Avis modifié !' }))
                     .catch(error => res.status(400).json({ error }));
             } else {
+                arrayOfLikes.push(userId)
+                Sauce.updateOne({ _id: req.params.id }, {
+                        dislikes: dislike,
+                        usersDisliked: arrayOfDislikes,
+                        _id: req.params.id
+                    })
+                    .then(() => res.status(200).json({ message: 'Avis modifié !' }))
+                    .catch(error => res.status(400).json({ error }));
 
             }
 

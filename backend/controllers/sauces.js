@@ -89,7 +89,7 @@ exports.likedSauce = (req, res, next) => {
                 console.log("parlà", arrayOfLikes)
                 Sauce.updateOne({ _id: req.params.id }, {
                         likes: like,
-                        usersliked: arrayOfLikes,
+                        usersLiked: arrayOfLikes,
                         _id: req.params.id
                     })
                     .then(() => res.status(200).json({ message: 'Avis modifié !' }))

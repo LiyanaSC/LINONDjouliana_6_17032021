@@ -1,5 +1,6 @@
 const Sauce = require('../models/sauce');
 const fs = require('fs');
+const { read } = require('fs/promises');
 
 
 exports.getAllSauces = (req, res, next) => {
@@ -68,8 +69,51 @@ exports.deleteSauce = (req, res, next) => {
 };
 
 exports.likedSauce = (req, res, next) => {
-    console.log(req.params, req.body)
-    Sauce.updateOne({ _id: req.params.id, ...req.body }, { _id: req.params.id, ...req.body })
-        .then(() => res.status(200).json({ message: 'Avis modifié !' }))
-        .catch(error => res.status(400).json({ error }));
+
+    Sauce.findById({ _id: req.params.id, })
+        .then(sauce => {
+
+            const addLike = req.body.like;
+            const addDislike = req.body.dislike;
+
+            const like = sauce.likes + addLike;
+            const dislike = sauce.dislikes + addDislike;
+
+            const usersvote = req.body.userId;
+            const arrayOfLikes = sauce.usersLiked;
+            const deleteLikes = arrayOfLikes.indexOf(usersvote)
+
+            console.log("ici", arrayOfLikes, deleteLikes)
+            if (addLike === 1) {
+                arrayOfLikes.push(usersvote)
+                console.log("parlà", arrayOfLikes)
+                Sauce.updateOne({ _id: req.params.id }, {
+                        likes: like,
+                        usersliked: arrayOfLikes,
+                        _id: req.params.id
+                    })
+                    .then(() => res.status(200).json({ message: 'Avis modifié !' }))
+                    .catch(error => res.status(400).json({ error }));
+
+
+            } else {
+
+            }
+            console.log("à la fin", arrayOfLikes)
+
+        })
+        .catch(error => res.status(400).json({ error }))
+
+
+
+
+
+    /* 
+        console.log(req.params, req.body)
+    , { upsert: true }
+            Sauce.updateOne({ _id: req.params.id }, {...req.body, _id: req.params.id })
+                .then(() => res.status(200).json({ message: 'Avis modifié !' }))
+                .catch(error => res.status(400).json({ error }));
+
+           */
 }

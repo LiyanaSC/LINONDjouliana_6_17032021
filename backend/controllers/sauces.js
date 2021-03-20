@@ -94,9 +94,6 @@ exports.likedSauce = (req, res, next) => {
             const userIndexInLikes = arrayOfLikes.indexOf(userId)
             const userIndexInDislikes = arrayOfDislikes.indexOf(userId)
 
-            const likesArrayLength = arrayOfLikes.length;
-            const dislikesArrayLength = arrayOfDislikes.length;
-
 
             if (addLike === 1) {
                 arrayOfLikes.push(userId)

@@ -8,6 +8,7 @@ const sauceRoutes = require('./routes/sauces');
 
 const app = express();
 
+
 mongoose.connect('mongodb+srv://utilisateur:enter@cluster0.pfyiz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
         useNewUrlParser: true,
         useUnifiedTopology: true

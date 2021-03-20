@@ -22,11 +22,11 @@ exports.getAllSauces = (req, res, next) => {
 };
 
 exports.getOneSauce = (req, res, next) => {
-    if (!{...req.body }) {
-        return res.status(400).send(new Error('Bad request!'));
-    }
     Sauce.findById(req.params.id)
         .then(sauce => {
+            if (!sauce) {
+                return res.status(404).send(new Error('Bad request!'));
+            }
             res.status(200).json(sauce);
         })
         .catch(error => res.status(404).json({ error }));
@@ -34,6 +34,16 @@ exports.getOneSauce = (req, res, next) => {
 
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
+    if (!req.body.sauce ||
+        !sauceObject.name ||
+        !sauceObject.manufacturer ||
+        !sauceObject.description ||
+        !sauceObject.mainPepper ||
+        !sauceObject.heat
+
+    ) {
+        return res.status(400).send(new Error('Bad request!'));
+    }
     delete sauceObject._id;
     const sauce = new Sauce({
         ...sauceObject,
@@ -82,7 +92,10 @@ exports.likedSauce = (req, res, next) => {
             const arrayOfLikes = sauce.usersLiked;
             const arrayOfDislikes = sauce.usersDisliked
             const userIndexInLikes = arrayOfLikes.indexOf(userId)
+            const userIndexInDislikes = arrayOfDislikes.indexOf(userId)
 
+            const likesArrayLength = arrayOfLikes.length;
+            const dislikesArrayLength = arrayOfDislikes.length;
 
 
             if (addLike === 1) {
@@ -99,11 +112,15 @@ exports.likedSauce = (req, res, next) => {
 
             } else if (addLike === 0) {
                 arrayOfLikes.splice(userIndexInLikes, 1)
-                arrayOfDislikes.splice(userIndexInLikes, 1)
+                arrayOfDislikes.splice(userIndexInDislikes, 1)
+
+                const finalLikesArrayLength = arrayOfLikes.length;
+                const finalDislikesArrayLength = arrayOfDislikes.length;
+
                 Sauce.updateOne({ _id: req.params.id }, {
-                        likes: like,
+                        likes: finalLikesArrayLength,
                         usersLiked: arrayOfLikes,
-                        dislike: dislike,
+                        dislikes: finalDislikesArrayLength,
                         usersDisliked: arrayOfDislikes,
                         _id: req.params.id
                     })

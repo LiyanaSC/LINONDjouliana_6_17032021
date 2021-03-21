@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 const User = require('../models/user');
+const { body, validationResult } = require('express-validator');
 
 exports.createUser = (req, res, next) => {
     if (!req.body.email ||
@@ -23,8 +24,10 @@ exports.createUser = (req, res, next) => {
 exports.logUser = (req, res, next) => {
     User.findOne({ email: req.body.email })
         .then(user => {
+            console.log(req.body.email, user.email)
             if (!user) {
                 res.status(401).json({ error: 'utilisateur inconnus' });
+
             }
             bcrypt.compare(req.body.password, user.password)
                 .then(valid => {

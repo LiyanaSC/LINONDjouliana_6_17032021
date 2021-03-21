@@ -7,6 +7,9 @@ exports.getAllSauces = (req, res, next) => {
     Sauce.find().then(
         sauces => {
             const mappedSauces = sauces.map((sauce) => {
+                if (!sauce) {
+                    return res.status(404).send(new Error('Bad request!'));
+                }
                 return sauce;
             });
             res.status(200).json(mappedSauces);
@@ -48,7 +51,9 @@ exports.createSauce = (req, res, next) => {
     const sauce = new Sauce({
         ...sauceObject,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+
     });
+    console.log(sauceObject.userId)
     sauce.save()
         .then(() => res.status(201).json({ message: 'Sauce Créée  !' }))
         .catch(error => res.status(400).json({ error }));

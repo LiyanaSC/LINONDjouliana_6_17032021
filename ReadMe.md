@@ -21,5 +21,18 @@ installer multer pour la sauvegarde d'image:
     -npm install --save multer
 
 ESSAI UTILISATEUR:
-try@gmail.com
+Try@connect.fr
 Try032021
+
+
+
+
+
+
+
+à envisager:
+    -OTP
+
+dette sécurité:
+(front end)
+    crypter mail au submit

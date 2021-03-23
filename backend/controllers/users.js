@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/user');
 const passwordValidator = require('password-validator');
 const validator = require("email-validator");
-
+const CryptoJS = require("crypto-js");
 
 const schema = new passwordValidator();
 
@@ -13,8 +13,7 @@ schema
     .has().uppercase()
     .has().lowercase()
     .has().digits(1)
-    .has().not().spaces()
-
+    .has().not().spaces();
 
 
 exports.createUser = (req, res, next) => {
@@ -26,10 +25,12 @@ exports.createUser = (req, res, next) => {
         !req.body.password) {
         return res.status(400).send(new Error('Bad request!'));
     }
+
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
+            const hashedMail = CryptoJS.SHA256(req.body.email)
             const user = new User({
-                email: req.body.email,
+                email: hashedMail,
                 password: hash
             })
 
@@ -46,7 +47,8 @@ exports.logUser = (req, res, next) => {
     } else if (validator.validate(req.body.email) == false) {
         return res.status(406).send(new Error('not a email'));
     }
-    User.findOne({ email: req.body.email })
+    const hashedMail = CryptoJS.SHA256(req.body.email).toString();
+    User.findOne({ email: hashedMail })
         .then(user => {
             if (user == undefined) {
                 res.status(401).send(new Error('utilisateur inconnus'));

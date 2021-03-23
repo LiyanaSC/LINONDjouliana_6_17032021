@@ -1,8 +1,7 @@
 Pour l'activation de nodemon sur macbook:
-        1- copier :         "auto": "npx nodemon server.js"
-            dans le package.json
+        "start": "npx nodemon server.js"
+-puis npm start depuis le dossier backend.
 
-        2- dans le terminal :    npm run auto 
 
 Pour une seule adresse mail:
     npm install --save mongoose-unique-validator

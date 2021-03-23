@@ -10,8 +10,6 @@ Pour une seule adresse mail:
 pour crypter mdp
     npm install --save bcrypt
 
-essaie utilisateur :
-    mail: ola@fr  ou coucou@fr
 
 sécuriser les routes:
         1- ajouter dans le fichier de la route "const auth = require('../middleware/auth');"
@@ -20,19 +18,10 @@ sécuriser les routes:
 installer multer pour la sauvegarde d'image: 
     -npm install --save multer
 
-ESSAI UTILISATEUR:
-Try@connect.fr
-Try032021
-
-
-
-
-
 
 
 à envisager:
     -OTP
-
 dette sécurité:
 (front end)
-    crypter mail au submit
+crypter mail au submit

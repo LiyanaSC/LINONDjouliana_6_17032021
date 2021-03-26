@@ -42,17 +42,23 @@ exports.getOneSauce = (req, res, next) => {
 };
 
 exports.createSauce = (req, res, next) => {
-    const sauceObject = JSON.parse(req.body.sauce);
+    const sauceObject = JSON.parse(req.body.sauce); //ne passe pas sur postman
     if (!req.body.sauce ||
         !sauceObject.name ||
+        typeof sauceObject.name != "string" ||
         !sauceObject.manufacturer ||
+        typeof sauceObject.manufacturer != "string" ||
         !sauceObject.description ||
+        typeof sauceObject.description != "string" ||
         !sauceObject.mainPepper ||
-        !sauceObject.heat
+        typeof sauceObject.mainPepper != "string" ||
+        !sauceObject.heat ||
+        typeof sauceObject.heat != "number"
 
     ) {
-        return res.status(400).send(new Error('Bad request!'));
+        return res.status(400).json({ error: 'Bad request' });
     }
+
     delete sauceObject._id;
     const sauce = new Sauce({
         ...sauceObject,
@@ -82,7 +88,7 @@ exports.modifSauce = (req, res, next) => {
             !req.params.id
 
         ) {
-            return res.status(400).send(new Error('Bad request!'));
+            return res.status(400).json({ error: 'Bad request' });
         }
         Sauce.findOne({ _id: req.params.id })
             .then(sauce => {
@@ -94,17 +100,22 @@ exports.modifSauce = (req, res, next) => {
                 });
             });
     } else {
+        console.log(typeof req.body.name)
         if (!req.body ||
             !req.body.name ||
+            typeof req.body.name != "string" ||
             !req.body.manufacturer ||
+            typeof req.body.manufacturer != "string" ||
             !req.body.description ||
+            typeof req.body.description != "string" ||
             !req.body.mainPepper ||
+            typeof req.body.mainPepper != "string" ||
             !req.body.heat ||
-            !req.body.heat ||
+            typeof req.body.heat != "number" ||
             !req.params.id
 
         ) {
-            return res.status(400).send(new Error('Bad request!'));
+            return res.status(400).json({ error: 'Bad request modif' });
         }
 
         Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
@@ -128,20 +139,17 @@ exports.deleteSauce = (req, res, next) => {
         .catch(error => res.status(500).json({ error }));
 
 };
-
 exports.likedSauce = (req, res, next) => {
-    console.log(typeof req.body.like)
+
     if (
-        req.body.like == "" ||
+        //typeof req.body.like != 'number' || //à retirer pour test postman
         req.body.like > 1 ||
-        req.body.like < -1
-
-
+        req.body.like < -1 ||
+        typeof req.body.userId != "string"
 
     ) {
-        return res.status(400).json({ error: 'Bad request' });
+        return res.status(400).json({ error: 'Bad request likes' });
     }
-
     Sauce.findById({ _id: req.params.id, })
 
     .then(sauce => {
@@ -153,15 +161,25 @@ exports.likedSauce = (req, res, next) => {
             const arrayOfLikes = sauce.usersLiked;
             const userIndexInLikes = arrayOfLikes.indexOf(userId)
             const like = sauce.likes + addLike;
-
-
+            const foundLike = arrayOfLikes.find(element => element == req.body.userId);
 
 
             const arrayOfDislikes = sauce.usersDisliked
             const userIndexInDislikes = arrayOfDislikes.indexOf(userId)
             const dislike = sauce.dislikes - addLike;
+            const foundDislike = arrayOfDislikes.find(element => element == req.body.userId);
+
 
             if (addLike == 1) {
+
+
+                if ((foundLike == req.body.userId) == true) {
+                    return res.status(400).json({ error: 'Like already posted' });
+                } else if ((foundDislike == req.body.userId) == true) {
+                    return res.status(400).json({ error: 'Dislike already posted' });
+                }
+
+
                 arrayOfLikes.push(userId);
                 Sauce.updateOne({ _id: req.params.id }, {
                         usersLiked: arrayOfLikes,
@@ -172,6 +190,13 @@ exports.likedSauce = (req, res, next) => {
                     .catch(error => res.status(400).json({ error }));
 
             } else if (addLike == -1) {
+
+
+                if ((foundDislike == req.body.userId) == true) {
+                    return res.status(400).json({ error: 'Dislike already posted' });
+                } else if ((foundLike == req.body.userId) == true) {
+                    return res.status(400).json({ error: 'Like already posted' });
+                }
                 arrayOfDislikes.push(userId);
                 Sauce.updateOne({ _id: req.params.id }, {
                         usersDisliked: arrayOfDislikes,

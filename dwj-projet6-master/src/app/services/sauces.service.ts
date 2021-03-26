@@ -136,7 +136,7 @@ export class SaucesService {
         'http://localhost:3000/api/sauces/' + id + '/like',
         {
           userId: this.auth.getUserId(),
-          like: dislike ? -1 : 0
+         like: dislike ? -1 : 0
         })
         .subscribe(
           (response: { message: string }) => {

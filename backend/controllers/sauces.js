@@ -1,10 +1,12 @@
 const Sauce = require('../models/sauce');
 const fs = require('fs');
 const { read } = require('fs/promises');
+const { stringify } = require('postcss');
 
 
 exports.getAllSauces = (req, res, next) => {
     Sauce.find().then(
+
         sauces => {
             const mappedSauces = sauces.map((sauce) => {
                 if (!sauce) {
@@ -25,9 +27,12 @@ exports.getAllSauces = (req, res, next) => {
 };
 
 exports.getOneSauce = (req, res, next) => {
+    if (!req.params.id) {
+        return res.status(400).send(new Error('Bad request!'));
+    }
     Sauce.findById(req.params.id)
         .then(sauce => {
-            console.log(sauce)
+
             if (!sauce) {
                 return res.status(404).send(new Error('Bad request!'));
             }
@@ -54,18 +59,31 @@ exports.createSauce = (req, res, next) => {
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
 
     });
-    console.log(sauceObject.userId)
+
     sauce.save()
         .then(() => res.status(201).json({ message: 'Sauce Créée  !' }))
         .catch(error => res.status(400).json({ error }));
 };
 
 exports.modifSauce = (req, res, next) => {
+    console.log("debut", JSON.stringify(req.body), "fin")
+    if (!req.params.id) {
+        return res.status(400).send(new Error('Bad request!'));
+    }
     const sauceObject = req.file ? {
         ...JSON.parse(req.body.sauce),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : {...req.body };
     if (req.file != null) {
+
+        if (!req.body ||
+            !req.body.sauce ||
+            !req.file ||
+            !req.params.id
+
+        ) {
+            return res.status(400).send(new Error('Bad request!'));
+        }
         Sauce.findOne({ _id: req.params.id })
             .then(sauce => {
                 const filename = sauce.imageUrl.split('/images/')[1];
@@ -76,14 +94,28 @@ exports.modifSauce = (req, res, next) => {
                 });
             });
     } else {
+        if (!req.body ||
+            !req.body.name ||
+            !req.body.manufacturer ||
+            !req.body.description ||
+            !req.body.mainPepper ||
+            !req.body.heat ||
+            !req.body.heat ||
+            !req.params.id
+
+        ) {
+            return res.status(400).send(new Error('Bad request!'));
+        }
+
         Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
             .then(() => res.status(200).json({ message: 'Objet modifié !' }))
             .catch(error => res.status(400).json({ error }));
     }
-    console.log(req.file)
+
 };
 
 exports.deleteSauce = (req, res, next) => {
+
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
             const filename = sauce.imageUrl.split('/images/')[1];
@@ -98,11 +130,23 @@ exports.deleteSauce = (req, res, next) => {
 };
 
 exports.likedSauce = (req, res, next) => {
+    console.log(typeof req.body.like)
+    if (
+        req.body.like == "" ||
+        req.body.like > 1 ||
+        req.body.like < -1
+
+
+
+    ) {
+        return res.status(400).json({ error: 'Bad request' });
+    }
 
     Sauce.findById({ _id: req.params.id, })
 
     .then(sauce => {
 
+            console.log("u", req.body.like)
             const addLike = req.body.like;
             const userId = req.body.userId;
 
@@ -134,9 +178,9 @@ exports.likedSauce = (req, res, next) => {
                         dislikes: dislike,
                         _id: req.params.id
                     })
-                    .then(() => res.status(200).json({ message: 'Avis modifié !' }))
+                    .then(() => res.status(200).json({ message: 'dislike !' }))
                     .catch(error => res.status(400).json({ error }));
-            } else {
+            } else if (addLike == 0) {
 
                 const FinalLikesArray = arrayOfLikes.splice(userIndexInLikes, 1)
                 const likeAfterModif = JSON.parse(arrayOfLikes.length) - JSON.parse(FinalLikesArray.length);
@@ -153,7 +197,7 @@ exports.likedSauce = (req, res, next) => {
                         dislikes: resultDislike,
                         _id: req.params.id
                     })
-                    .then(() => res.status(200).json({ message: 'dislike !' }))
+                    .then(() => res.status(200).json({ message: 'Avis modifié !' }))
                     .catch(error => res.status(400).json({ error }));
 
             }

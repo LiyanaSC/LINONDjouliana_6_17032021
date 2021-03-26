@@ -18,12 +18,12 @@ schema
 
 exports.createUser = (req, res, next) => {
     if (schema.validate(req.body.password) == false) {
-        return res.status(406).send(new Error('password insecure try again'));
+        return res.status(400).json({ error: 'password insecure try again' });
     } else if (validator.validate(req.body.email) == false) {
-        return res.status(406).send(new Error('not an email'));
+        return res.status(400).json({ error: 'not an email' });
     } else if (!req.body.email ||
         !req.body.password) {
-        return res.status(400).send(new Error('Bad request!'));
+        return res.status(400).json({ error: 'permission denied' });
     }
 
     bcrypt.hash(req.body.password, 10)

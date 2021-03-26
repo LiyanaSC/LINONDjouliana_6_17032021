@@ -72,7 +72,7 @@ exports.createSauce = (req, res, next) => {
 };
 
 exports.modifSauce = (req, res, next) => {
-    console.log("debut", JSON.stringify(req.body), "fin")
+
     if (!req.params.id) {
         return res.status(400).send(new Error('Bad request!'));
     }
@@ -100,9 +100,8 @@ exports.modifSauce = (req, res, next) => {
                 });
             });
     } else {
-        console.log(typeof req.body.name)
-        if (!req.body ||
-            !req.body.name ||
+
+        if (!req.body.name ||
             typeof req.body.name != "string" ||
             !req.body.manufacturer ||
             typeof req.body.manufacturer != "string" ||
@@ -140,8 +139,12 @@ exports.deleteSauce = (req, res, next) => {
 
 };
 exports.likedSauce = (req, res, next) => {
-
-    if (
+    const parsedBody = Object.keys(req.body).length
+    console.log(req.body)
+    if (parsedBody > 2 ||
+        parsedBody < 2 ||
+        req.body.userId == undefined ||
+        req.body.like == undefined ||
         //typeof req.body.like != 'number' || //à retirer pour test postman
         req.body.like > 1 ||
         req.body.like < -1 ||
@@ -153,29 +156,27 @@ exports.likedSauce = (req, res, next) => {
     Sauce.findById({ _id: req.params.id, })
 
     .then(sauce => {
-
-            console.log("u", req.body.like)
             const addLike = req.body.like;
             const userId = req.body.userId;
 
             const arrayOfLikes = sauce.usersLiked;
             const userIndexInLikes = arrayOfLikes.indexOf(userId)
             const like = sauce.likes + addLike;
-            const foundLike = arrayOfLikes.find(element => element == req.body.userId);
+            const foundUserLike = arrayOfLikes.find(element => element == req.body.userId);
 
 
             const arrayOfDislikes = sauce.usersDisliked
             const userIndexInDislikes = arrayOfDislikes.indexOf(userId)
             const dislike = sauce.dislikes - addLike;
-            const foundDislike = arrayOfDislikes.find(element => element == req.body.userId);
+            const foundUserDislike = arrayOfDislikes.find(element => element == req.body.userId);
 
 
             if (addLike == 1) {
 
 
-                if ((foundLike == req.body.userId) == true) {
+                if ((foundUserLike == req.body.userId) == true) {
                     return res.status(400).json({ error: 'Like already posted' });
-                } else if ((foundDislike == req.body.userId) == true) {
+                } else if ((foundUserDislike == req.body.userId) == true) {
                     return res.status(400).json({ error: 'Dislike already posted' });
                 }
 
@@ -192,9 +193,9 @@ exports.likedSauce = (req, res, next) => {
             } else if (addLike == -1) {
 
 
-                if ((foundDislike == req.body.userId) == true) {
+                if ((foundUserDislike == req.body.userId) == true) {
                     return res.status(400).json({ error: 'Dislike already posted' });
-                } else if ((foundLike == req.body.userId) == true) {
+                } else if ((foundUserLike == req.body.userId) == true) {
                     return res.status(400).json({ error: 'Like already posted' });
                 }
                 arrayOfDislikes.push(userId);
@@ -206,6 +207,11 @@ exports.likedSauce = (req, res, next) => {
                     .then(() => res.status(200).json({ message: 'dislike !' }))
                     .catch(error => res.status(400).json({ error }));
             } else if (addLike == 0) {
+                if (
+                    (foundUserDislike == req.body.userId) == false &&
+                    (foundUserLike == req.body.userId) == false) {
+                    return res.status(400).json({ error: 'opinion already modified' });
+                }
 
                 const FinalLikesArray = arrayOfLikes.splice(userIndexInLikes, 1)
                 const likeAfterModif = JSON.parse(arrayOfLikes.length) - JSON.parse(FinalLikesArray.length);
@@ -214,6 +220,7 @@ exports.likedSauce = (req, res, next) => {
                 const FinalDislikesArray = arrayOfDislikes.splice(userIndexInDislikes, 1)
                 const dislikeAfterModif = JSON.parse(arrayOfDislikes.length) - JSON.parse(FinalDislikesArray.length);
                 const resultDislike = dislike + dislikeAfterModif;
+
 
                 Sauce.updateOne({ _id: req.params.id }, {
                         usersLiked: arrayOfLikes,
@@ -229,16 +236,4 @@ exports.likedSauce = (req, res, next) => {
         })
         .catch(error => res.status(400).json({ error }))
 
-
-
-
-
-    /* 
-        console.log(req.params, req.body)
-    , { upsert: true }
-            Sauce.updateOne({ _id: req.params.id }, {...req.body, _id: req.params.id })
-                .then(() => res.status(200).json({ message: 'Avis modifié !' }))
-                .catch(error => res.status(400).json({ error }));
-
-           */
 }

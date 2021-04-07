@@ -1,4 +1,4 @@
-Pour l'activation de nodemon sur macbook:
+en cas de problème avec nodemon sur macbook:
         1- copier :         "auto": "npx nodemon server.js"
             dans le package.json
 

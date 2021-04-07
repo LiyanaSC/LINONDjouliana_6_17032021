@@ -141,8 +141,7 @@ exports.deleteSauce = (req, res, next) => {
 exports.likedSauce = (req, res, next) => {
     const parsedBody = Object.keys(req.body).length
     console.log(req.body)
-    if (parsedBody > 2 ||
-        parsedBody < 2 ||
+    if (parsedBody != 2 ||
         req.body.userId == undefined ||
         req.body.like == undefined ||
         //typeof req.body.like != 'number' || //à retirer pour test postman

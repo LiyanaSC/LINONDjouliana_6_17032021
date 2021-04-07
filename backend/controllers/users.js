@@ -9,7 +9,6 @@ const schema = new passwordValidator();
 
 schema
     .is().min(8)
-    .is().max(100)
     .has().uppercase()
     .has().lowercase()
     .has().digits(1)
@@ -17,7 +16,9 @@ schema
 
 
 exports.createUser = (req, res, next) => {
-    if (schema.validate(req.body.password) == false) {
+    if (Object.keys(req.body).length != 2) {
+        return res.status(400).json({ error: 'bad request' });
+    } else if (schema.validate(req.body.password) == false) {
         return res.status(400).json({ error: 'password insecure try again' });
     } else if (validator.validate(req.body.email) == false) {
         return res.status(400).json({ error: 'not an email' });
@@ -51,7 +52,7 @@ exports.logUser = (req, res, next) => {
     User.findOne({ email: hashedMail })
         .then(user => {
             if (user == undefined) {
-                res.status(401).send(new Error('utilisateur inconnus'));
+                res.status(401).send(new Error('permission denied'));
 
             } else {
                 bcrypt.compare(req.body.password, user.password)

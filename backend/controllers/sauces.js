@@ -2,6 +2,8 @@ const Sauce = require('../models/sauce');
 const fs = require('fs');
 const { read } = require('fs/promises');
 const { stringify } = require('postcss');
+const jwt = require('jsonwebtoken')
+
 
 
 exports.getAllSauces = (req, res, next) => {
@@ -43,6 +45,7 @@ exports.getOneSauce = (req, res, next) => {
 
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce); //ne passe pas sur postman
+    console.log(sauceObject)
     if (!req.body.sauce ||
         !sauceObject.name ||
         typeof sauceObject.name != "string" ||
@@ -72,26 +75,26 @@ exports.createSauce = (req, res, next) => {
 };
 
 exports.modifSauce = (req, res, next) => {
-
-    if (!req.params.id) {
-        return res.status(400).send(new Error('Bad request!'));
-    }
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
+    const userId = decodedToken.userId;
     const sauceObject = req.file ? {
         ...JSON.parse(req.body.sauce),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : {...req.body };
     if (req.file != null) {
 
-        if (!req.body ||
-            !req.body.sauce ||
-            !req.file ||
-            !req.params.id
-
+        if (!req.body.sauce ||
+            !req.file
         ) {
             return res.status(400).json({ error: 'Bad request' });
         }
         Sauce.findOne({ _id: req.params.id })
             .then(sauce => {
+                console.log(sauce)
+                if (sauce.userId != userId) {
+                    return res.status(400).json({ error: 'permission denied' });
+                }
                 const filename = sauce.imageUrl.split('/images/')[1];
                 fs.unlink(`images/${filename}`, () => {
                     Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
@@ -117,17 +120,35 @@ exports.modifSauce = (req, res, next) => {
             return res.status(400).json({ error: 'Bad request modif' });
         }
 
-        Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
-            .then(() => res.status(200).json({ message: 'Objet modifié !' }))
-            .catch(error => res.status(400).json({ error }));
+        Sauce.findOne({ _id: req.params.id })
+            .then(sauce => {
+                console.log(sauce.userId, "&", userId)
+                if (sauce.userId != userId) {
+                    return res.status(400).json({ error: 'permission denied' });
+                }
+
+
+                Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
+                    .then(() => res.status(200).json({ message: 'Objet modifié !' }))
+                    .catch(error => res.status(400).json({ error }));
+            });
+
+
+
     }
 
 };
 
 exports.deleteSauce = (req, res, next) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
+    const userId = decodedToken.userId;
 
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
+            if (sauce.userId != userId) {
+                return res.status(400).json({ error: 'permission denied' });
+            }
             const filename = sauce.imageUrl.split('/images/')[1];
             fs.unlink(`images/${filename}`, () => {
                 Sauce.deleteOne({ _id: req.params.id })

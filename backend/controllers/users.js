@@ -43,7 +43,9 @@ exports.createUser = (req, res, next) => {
 }
 
 exports.logUser = (req, res, next) => {
-    if (schema.validate(req.body.password) == false) {
+    if (Object.keys(req.body).length != 2) {
+        return res.status(400).json({ error: 'bad request' });
+    } else if (schema.validate(req.body.password) == false) {
         return res.status(406).send(new Error('password insecure try again'));
     } else if (validator.validate(req.body.email) == false) {
         return res.status(406).send(new Error('not a email'));

@@ -1,6 +1,8 @@
-Pour l'activation de nodemon sur macbook:
-        "start": "npx nodemon server.js"
--puis npm start depuis le dossier backend.
+
+en cas de problème avec nodemon sur macbook:
+        1- copier :         "auto": "npx nodemon server.js"
+            dans le package.json
+
 
 
 Pour une seule adresse mail:
@@ -24,3 +26,4 @@ installer multer pour la sauvegarde d'image:
 dette sécurité:
 (front end)
 crypter mail au submit
+

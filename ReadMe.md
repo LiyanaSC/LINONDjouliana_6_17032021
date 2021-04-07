@@ -20,6 +20,4 @@ sécuriser les routes:
 installer multer pour la sauvegarde d'image: 
     -npm install --save multer
 
-ESSAI UTILISATEUR:
-try@gmail.com
-Try032021
+

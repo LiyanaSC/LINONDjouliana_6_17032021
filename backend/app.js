@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
+require('dotenv').config();
+
 
 const usersRoutes = require('./routes/users');
 const sauceRoutes = require('./routes/sauces');
@@ -10,7 +12,7 @@ const app = express();
 
 
 
-mongoose.connect('mongodb+srv://_____________________@cluster0.pfyiz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
+mongoose.connect('mongodb+srv://utilisateur:enter@cluster0.pfyiz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
         useNewUrlParser: true,
         useUnifiedTopology: true
     })
